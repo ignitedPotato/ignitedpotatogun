@@ -1,0 +1,8 @@
+"AddonInfo"
+{
+	"name"            "ignitedPotato Gun"
+	"version"         "0.1"
+	"up_date"         "00/00/00"
+	"author_name"     "ignitedPotato"
+	"info"            "A gun. Wich shoots ignited potatoes."
+}
