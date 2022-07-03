@@ -1,4 +1,3 @@
-
 print("[ignitedPotato] Checking portal2 ...")
 if (not IsMounted("portal2")) then
     print("[ignitedPotato] portal2 not loaded! Disabling weapon.")
@@ -47,14 +46,10 @@ SWEP.DrawAmmo = false
 SWEP.DrawWeaponInfoBox = false
 
 SWEP.ShootSound = Sound("weapons/grenade_launcher1.wav")
-SWEP.EmptySound = Sound("weapons/wpn_denyselect.wav")
 SWEP.Potato = Model("models/npcs/potatos/world_model/potatos_wmodel.mdl")
+SWEP.WepSelectIcon = Material("ignitedpotato/potato.png")
 
-function SWEP:Initialize()
-    self:SetHoldType("shotgun")
-end
-
-function SWEP:Reload() end
+function SWEP:Initialize() self:SetHoldType("shotgun") end
 
 function SWEP:ShootPotato(randvec)
     local owner = self:GetOwner()
@@ -97,29 +92,51 @@ function SWEP:ShootPotato(randvec)
     undo.SetCustomUndoText("Removed a hot potato")
     undo.Finish()
 
-    timer.Simple(15, function() if ent and ent:IsValid() then ent:Remove() end end)
+    timer.Simple(15, function()
+        if ent and ent:IsValid() then
+            local effectdata = EffectData()
+            effectdata:SetOrigin(ent:GetPos())
+            effectdata:SetMagnitude(8)
+            effectdata:SetScale(1)
+            effectdata:SetRadius(16)
+            util.Effect("balloon_pop", effectdata)
+            ent:Remove()
+        end
+    end)
 end
 
 function SWEP:PrimaryAttack()
     self:SetNextPrimaryFire(CurTime() + 0.5)
+    self:SetNextSecondaryFire(CurTime() + 0.5)
 
-    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
-    self.Owner:SetAnimation(PLAYER_ATTACK1)
+    self:ShootEffects()
 
     self:ShootPotato(VectorRand(-10, 10))
 end
 
 function SWEP:SecondaryAttack()
+    self:SetNextPrimaryFire(CurTime() + 1)
     self:SetNextSecondaryFire(CurTime() + 1)
 
-    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+    self:SendWeaponAnim(ACT_VM_SECONDARYATTACK)
+    self.Owner:MuzzleFlash()
     self.Owner:SetAnimation(PLAYER_ATTACK1)
 
     self:ShootPotato(VectorRand(-500, 500))
-    self:ShootPotato(VectorRand(-500, 500))
-    self:ShootPotato(VectorRand(-500, 500))
+    timer.Simple(0.05, function() self:ShootPotato(VectorRand(-500, 500)) end)
+    timer.Simple(0.1, function() self:ShootPotato(VectorRand(-500, 500)) end)
 end
 
+function SWEP:Reload() end
+
 function SWEP:ShouldDropOnDie() return false end
+
+function SWEP:DrawWeaponSelection( x, y, w, h, a )
+	surface.SetDrawColor( 255, 255, 255, a )
+	surface.SetMaterial( self.WepSelectIcon )
+
+	local size = math.min( w, h )
+	surface.DrawTexturedRect( x + w / 2 - size / 2, y, size, size )
+end
 
 print("[ignitedPotato] Ready.")
