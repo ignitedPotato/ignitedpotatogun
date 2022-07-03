@@ -131,12 +131,12 @@ function SWEP:Reload() end
 
 function SWEP:ShouldDropOnDie() return false end
 
-function SWEP:DrawWeaponSelection( x, y, w, h, a )
-	surface.SetDrawColor( 255, 255, 255, a )
-	surface.SetMaterial( self.WepSelectIcon )
+function SWEP:DrawWeaponSelection(x, y, w, h, a)
+    surface.SetDrawColor(255, 255, 255, a)
+    surface.SetMaterial(self.WepSelectIcon)
 
-	local size = math.min( w, h )
-	surface.DrawTexturedRect( x + w / 2 - size / 2, y, size, size )
+    local size = math.min(w, h)
+    surface.DrawTexturedRect(x + w / 2 - size / 2, y, size, size)
 end
 
 print("[ignitedPotato] Ready.")
