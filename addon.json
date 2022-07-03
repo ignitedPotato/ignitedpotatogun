@@ -1,0 +1,11 @@
+{
+  "title": "ignitedPotato Gun",
+  "type": "weapon",
+  "tags": ["fun"],
+  "ignore"	:
+    [
+      "*.git*",
+      "*.jpg",
+      "*.txt"
+    ]
+}
