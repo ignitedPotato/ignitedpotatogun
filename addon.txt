@@ -4,5 +4,5 @@
 	"version"         "0.2"
 	"up_date"         "00/00/00"
 	"author_name"     "ignitedPotato"
-	"info"            "A gun. That shoots ignited potatoes."
+	"info"            "A gun. One that shoots ignited potatoes."
 }

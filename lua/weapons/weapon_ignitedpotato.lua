@@ -13,7 +13,7 @@ SWEP.PrintName = "ignitedPotato Gun"
 SWEP.Author = "ignitedPotato"
 SWEP.Category = "ignitedPotato"
 SWEP.Instructions = "Left mouse to fire a flaming potato!"
-SWEP.Purpose = "A gun. That shoots ignited potatoes."
+SWEP.Purpose = "A gun. One that shoots ignited potatoes."
 
 SWEP.Weight = 5
 SWEP.AutoSwitchTo = false
@@ -28,8 +28,8 @@ SWEP.Spawnable = true
 SWEP.AdminSpawnable = true
 SWEP.AdminOnly = false
 
-SWEP.ViewModel = "models/weapons/c_smg1.mdl"
-SWEP.WorldModel = "models/weapons/w_smg1.mdl"
+SWEP.ViewModel = "models/weapons/c_shotgun.mdl"
+SWEP.WorldModel = "models/weapons/w_shotgun.mdl"
 SWEP.ViewModelFOV = 54
 SWEP.UseHands = true
 
@@ -40,7 +40,7 @@ SWEP.Primary.Ammo = "none"
 
 SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1
-SWEP.Secondary.Automatic = false
+SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = "none"
 
 SWEP.DrawAmmo = false
@@ -51,19 +51,16 @@ SWEP.EmptySound = Sound("weapons/wpn_denyselect.wav")
 SWEP.Potato = Model("models/npcs/potatos/world_model/potatos_wmodel.mdl")
 
 function SWEP:Initialize()
-    self:SetHoldType("smg")
+    self:SetHoldType("shotgun")
 end
 
 function SWEP:Reload() end
 
-function SWEP:PrimaryAttack()
-    self:SetNextPrimaryFire(CurTime() + 0.5)
-
+function SWEP:ShootPotato(randvec)
     local owner = self:GetOwner()
     if (not owner:IsValid()) then return end
 
-    self:EmitSound(self.ShootSound)
-    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+    self:EmitSound(self.ShootSound, 100, math.random(85, 100))
 
     if (CLIENT) then return end
 
@@ -89,7 +86,7 @@ function SWEP:PrimaryAttack()
     end
 
     aimvec:Mul(10000)
-    aimvec:Add(VectorRand(-10, 10))
+    aimvec:Add(randvec)
     phys:ApplyForceCenter(aimvec)
 
     cleanup.Add(self.Owner, "props", ent)
@@ -101,12 +98,26 @@ function SWEP:PrimaryAttack()
     undo.Finish()
 
     timer.Simple(15, function() if ent and ent:IsValid() then ent:Remove() end end)
+end
 
+function SWEP:PrimaryAttack()
+    self:SetNextPrimaryFire(CurTime() + 0.5)
+
+    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+    self.Owner:SetAnimation(PLAYER_ATTACK1)
+
+    self:ShootPotato(VectorRand(-10, 10))
 end
 
 function SWEP:SecondaryAttack()
-    self:SetNextSecondaryFire(CurTime() + 0.5)
-    self:EmitSound(self.EmptySound)
+    self:SetNextSecondaryFire(CurTime() + 1)
+
+    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+    self.Owner:SetAnimation(PLAYER_ATTACK1)
+
+    self:ShootPotato(VectorRand(-500, 500))
+    self:ShootPotato(VectorRand(-500, 500))
+    self:ShootPotato(VectorRand(-500, 500))
 end
 
 function SWEP:ShouldDropOnDie() return false end
