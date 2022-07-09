@@ -1,6 +1,4 @@
-if (not IsMounted("portal2")) then
-    return
-end
+if (not IsMounted("portal2")) then return end
 
 AddCSLuaFile()
 
@@ -15,8 +13,6 @@ ENT.AdminOnly = false
 
 ENT.Potato = Model("models/npcs/potatos/world_model/potatos_wmodel.mdl")
 ENT.Crate = Model("models/items/item_item_crate.mdl")
-
-local Health = 40
 
 function ENT:ShootPotato()
     if (CLIENT) then return end
@@ -85,6 +81,7 @@ function ENT:SpawnFunction(ply, tr, ClassName)
     if (not IsValid(ent)) then return false end
 
     ent:SetPos(SpawnPos)
+    ent:SetHealth(40)
 
     ent:Spawn()
     ent:Activate()
@@ -94,10 +91,11 @@ end
 
 function ENT:OnTakeDamage(dmginfo)
     self:TakePhysicsDamage(dmginfo)
-    Health = Health - dmginfo:GetDamage()
-    if Health <= 0 then
+    self:SetHealth(self:Health() - dmginfo:GetDamage())
+    if self:Health() <= 0 then
         self:PrecacheGibs()
         self:GibBreakClient(Angle(-90, 0, 0):Forward() * 100)
+        self:Remove()
 
         local effectdata = EffectData()
         effectdata:SetOrigin(self:GetPos())
@@ -105,6 +103,5 @@ function ENT:OnTakeDamage(dmginfo)
         util.Effect("Explosion", effectdata)
 
         for i = 1, 20 do self:ShootPotato() end
-        self:Remove()
     end
 end
