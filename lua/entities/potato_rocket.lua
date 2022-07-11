@@ -115,13 +115,6 @@ function ENT:Think()
     if (CLIENT) then return end
     if self.exploded then return end
 
-    for k, v in ipairs(ents.FindByClass("potato_laser")) do
-        if v:GetOwner() == self:GetOwner() then
-            self.laser = v
-            break
-        end
-    end
-
     if IsValid(self.laser) then
         local phys = self:GetPhysicsObject()
 

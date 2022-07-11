@@ -43,7 +43,6 @@ SWEP.ShootSound = Sound("Weapon_RPG.Single")
 SWEP.WepSelectIcon = Material("ignitedpotato/potato.png")
 
 SWEP.laser = nil
-SWEP.laserbeam = nil
 
 function SWEP:Initialize() self:SetHoldType("rpg") end
 
@@ -66,6 +65,9 @@ function SWEP:PrimaryAttack()
                    35 - ang:Up())
     ent:SetAngles(self:LocalToWorldAngles(Angle()))
     ent:SetOwner(owner)
+
+    ent.laser = self.laser
+
     ent:Spawn()
 
     local phys = ent:GetPhysicsObject()
@@ -79,46 +81,26 @@ function SWEP:Reload() end
 function SWEP:Think()
     if (CLIENT) then return end
 
-    if IsValid(self.laser) and IsValid(self.laserbeam) then
+    if IsValid(self.laser) then
         local eyeTrace = self:GetOwner():GetEyeTrace()
-        self.laser:SetPos(eyeTrace.HitPos)
-
-        local ang = self.Owner:EyeAngles()
-        self.laserbeam:SetPos(self.Owner:GetShootPos() + ang:Right() * 10 +
-                                  self.Owner:GetAimVector() * 20 - ang:Up())
+        self.laser:SetPos(eyeTrace.HitPos + eyeTrace.HitNormal * 2)
     else
         local rand = math.random(100000, 999999)
 
-        self.laser = ents.Create("potato_laser")
+        self.laser = ents.Create("env_sprite")
         if IsValid(self.laser) then
             self.laser:SetOwner(self:GetOwner())
-            self.laser:SetName("potato_laser_" .. rand)
+
+            self.laser:SetKeyValue("model", "sprites/redglow1.vmt")
+            self.laser:SetKeyValue("scale", 0.1)
+            self.laser:SetKeyValue("rendermode", 5)
 
             local eyeTrace = self:GetOwner():GetEyeTrace()
-            self.laser:SetPos(eyeTrace.HitPos)
+            self.laser:SetPos(eyeTrace.HitPos + eyeTrace.HitNormal * 2)
 
             self.laser:Spawn()
+            self.laser:Activate()
         end
-
-        self.laserbeam = ents.Create("env_laser")
-        if IsValid(self.laserbeam) then
-            self.laserbeam:SetOwner(self:GetOwner())
-
-            local ang = self.Owner:EyeAngles()
-            self.laserbeam:SetPos(self.Owner:GetShootPos() + ang:Right() * 10 +
-                                      self.Owner:GetAimVector() * 20 - ang:Up())
-
-            self.laserbeam:SetKeyValue("LaserTarget", "potato_laser_" .. rand)
-
-            self.laserbeam:SetKeyValue("width", 0.1)
-            self.laserbeam:SetKeyValue("rendercolor", "255 0 0")
-            self.laserbeam:SetKeyValue("texture", "sprites/laserbeam.spr")
-            self.laserbeam:SetKeyValue("ClipStyle", 2)
-
-            self.laserbeam:Spawn()
-            self.laserbeam:Activate()
-        end
-
     end
 end
 
@@ -134,7 +116,6 @@ end
 
 function SWEP:Holster()
     if (CLIENT) then return end
-    if IsValid(self.laserbeam) then self.laserbeam:Remove() end
     if IsValid(self.laser) then self.laser:Remove() end
     return true
 end
